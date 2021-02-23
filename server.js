@@ -13,9 +13,24 @@ app.use(cors());
 const PORT = process.env.PORT || 3009;
 
 // Routes
-// app.get('/location')
-// function locationCallback(req, res){
-//   res.send()
-// }
+
+//Location
+app.get('/location', locationCallback)
+function locationCallback(req, res){
+  const dataFromFile = require('./data/location.json');
+  const output = new Location(dataFromFile, req.query.city);
+  res.send(output);
+}
+
+function Location(dataFromFile, city){
+  this.search_query = city;
+  this.formatted_query = dataFromFile[0].display_name;
+  this.latitude = dataFromFile[0].lat;
+  this.longitude = dataFromFile[0].lon;
+}
+
+//Weather
+
+// Initialization //
 
 app.listen(PORT, () => console.log(`app is up on port http://localhost:${PORT}`))
