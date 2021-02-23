@@ -3,6 +3,7 @@
 // Packages
 const express = require('express');
 const cors = require('cors');
+const superagent = require('superagent')
 require('dotenv').config();
 
 //express() will return server object
@@ -33,11 +34,9 @@ function Location(dataFromFile, city){
 app.get('/weather', weatherCallback);
 function weatherCallback(req, res){
   const dataFromFile2 = require('./data/weather.json');
-  const output2 = [];
-  for (let i = 0; i < dataFromFile2.data.length; i++){
-    output2.push(new Weather(dataFromFile2.data[i]));
-  }
-  res.send(output2);
+  const output = dataFromFile2.data.map(day => 
+  new Weather(day))
+  res.send(output);
 }
 
 function Weather(object){
