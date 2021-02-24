@@ -50,6 +50,12 @@ A stand-alone back end which will interact with a static front end. We will requ
 ]
 ```
 
+4. As a user, I want to enter the name of a location so that I do not need to look up the latitude and longitude every time I learn about a new location.
+
+5. As a user, I want to request current weather information at any location, so that I can learn more about the typical weather patterns in the area of interest.
+
+6. As a user, I want to request information about parks and campgrounds in the area so that I can see details about what parks are nearby.
+
 
 ## Architecture
 
@@ -96,11 +102,56 @@ Start time: 5.20PM
 Finish time: 6.50PM
 
 Actual time needed to complete: 1hr 30min
+___________________________________________________________________
+**Number and name of feature:** Data formatting
+
+Estimate of time needed to complete: 30 min
+
+Start time: 2.20PM
+
+Finish time: 2.40PM
+
+Actual time needed to complete: 20 min
+___________________________________________________________________
+**Number and name of feature:** Locations API
+
+Estimate of time needed to complete: 1 hour
+
+Start time: 2.40PM
+
+Finish time: 3.50PM
+
+Actual time needed to complete: 1hr 10min
+___________________________________________________________________
+**Number and name of feature:** Weather API
+
+Estimate of time needed to complete: 1 hour
+
+Start time: 3.50PM
+
+Finish time: 5.20PM
+
+Actual time needed to complete: 1hr 30min
+___________________________________________________________________
+**Number and name of feature:** Parks API
+
+Estimate of time needed to complete: 1 hour
+
+Start time: 5.20PM
+
+Finish time: 8.00PM
+
+Actual time needed to complete: 2hr 40min
+
+
 
 
 
 ## Change Log
 
 02-22-2020 6:30pm - Application now has a fully-functional express server, with a GET route for the location and weather resources.
+02-23-2020 6:30pm - Application now has a fully-functional express server, with a GET route for the location, weather and park flexible data.
 
 ## Credits and Collaborations
+Matthew Simms
+Zach Hornung
