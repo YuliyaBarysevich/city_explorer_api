@@ -13,7 +13,8 @@ app.use(cors());
 
 const PORT = process.env.PORT || 3009;
 const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
-const WEATHER_API_KEY = process.env.WEATHER_API_KEY
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const PARKS_API_KEY = process.env.PARKS_API_KEY;
 
 // Routes
 
@@ -33,7 +34,7 @@ function locationCallback(req, res){
     .catch(error =>{
       console.log(error);
       res.status(500).send(`Sorry something went wrong`);
-    }); 
+    });
 }
 
 function Location(locationObject, city){
@@ -54,6 +55,10 @@ function weatherCallback(req, res){
       // const weatherObject = weatherData.body.data;
       const output =  weatherData.body.data.map(day => new Weather(day));
       res.send(output);
+    })
+    .catch(error =>{
+      console.log(error);
+      res.status(500).send(`Sorry something went wrong`);
     });
 }
 
@@ -61,6 +66,29 @@ function Weather(object){
   this.forecast = object.weather.description;
   this.time = object.valid_date;
 }
+
+app.get('/parks', parksCallback)
+function parksCallback(req, res){
+  const url = `https://developer.nps.gov/api/v1/parks?limit=3&start=0&q=${req.query.search_query}&sort=&api_key=${PARKS_API_KEY}`
+  superagent.get(url)
+    .then(parkData => {
+      const output = parkData.body.data.map(newPark => new Park(newPark))
+      res.send(output)
+    })
+    .catch(error =>{
+      console.log(error);
+      res.status(500).send(`Sorry something went wrong`);
+    });
+}
+
+function Park(object){
+  this.name = object.fullName;
+  this.address = object.addresses[0].line1 + ' ' + object.addresses[0].city + ' ' + object.addresses[0].stateCode + ' ' + object.addresses[0].postalCode;
+  this.fee = object.entranceFees[0].cost;
+  this.description = object.description;
+  this.url = object.url;
+}
+
 // Initialization //
 
 app.listen(PORT, () => console.log(`app is up on port http://localhost:${PORT}`))
