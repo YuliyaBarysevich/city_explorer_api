@@ -12,22 +12,34 @@ const app = express();
 app.use(cors());
 
 const PORT = process.env.PORT || 3009;
+const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 
 // Routes
 
 //Location
 app.get('/location', locationCallback);
 function locationCallback(req, res){
-  const dataFromFile = require('./data/location.json');
-  const output = new Location(dataFromFile, req.query.city);
-  res.send(output);
+  // const dataFromFile = require('./data/location.json');
+  const city = req.query.city;
+  const url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${city}&format=json`;
+
+  superagent.get(url)
+    .then(data => {
+      const locationObject = data.body[0];
+      const output = new Location(locationObject, req.query.city);
+      res.send(output);
+    })
+    .catch(error =>{
+      console.log(error);
+      res.status(500).send(`Sorry something went wrong`);
+    }); 
 }
 
-function Location(dataFromFile, city){
+function Location(locationObject, city){
   this.search_query = city;
-  this.formatted_query = dataFromFile[0].display_name;
-  this.latitude = dataFromFile[0].lat;
-  this.longitude = dataFromFile[0].lon;
+  this.formatted_query = locationObject.display_name;
+  this.latitude = locationObject.lat;
+  this.longitude = locationObject.lon;
 }
 
 //Weather
