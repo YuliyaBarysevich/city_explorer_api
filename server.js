@@ -13,6 +13,7 @@ app.use(cors());
 
 const PORT = process.env.PORT || 3009;
 const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
+const WEATHER_API_KEY = process.env.WEATHER_API_KEY
 
 // Routes
 
@@ -45,17 +46,20 @@ function Location(locationObject, city){
 //Weather
 app.get('/weather', weatherCallback);
 function weatherCallback(req, res){
-  const dataFromFile2 = require('./data/weather.json');
-  const output = dataFromFile2.data.map(day => 
-  new Weather(day))
-  res.send(output);
+  // const dataFromFile2 = require('./data/weather.json');
+  const city = req.query.search_query;
+  const url = `https://api.weatherbit.io/v2.0/forecast/daily?city=${city}&key=${WEATHER_API_KEY}`;
+  superagent.get(url)
+    .then(weatherData => {
+      // const weatherObject = weatherData.body.data;
+      const output =  weatherData.body.data.map(day => new Weather(day));
+      res.send(output);
+    });
 }
 
 function Weather(object){
-  {
-    this.forecast = object.weather.description;
-    this.time = object.valid_date;
-  }
+  this.forecast = object.weather.description;
+  this.time = object.valid_date;
 }
 // Initialization //
 
