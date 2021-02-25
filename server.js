@@ -18,11 +18,14 @@ const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const PARKS_API_KEY = process.env.PARKS_API_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
 
-// Routes
+
 const client = new pg.Client(DATABASE_URL)
 client.on('error', error => console.log(error))
-//Location
+// Routes
 app.get('/location', locationCallback);
+app.get('/weather', weatherCallback);
+app.get('/parks', parksCallback)
+
 function locationCallback(req, res){
   const sqlString = 'SELECT * FROM location_info WHERE search_query = $1';
   const sqlArray = [req.query.city]
@@ -31,7 +34,7 @@ function locationCallback(req, res){
   .then(dataFromDatabase =>{
       if (dataFromDatabase.rows.length > 0){
         console.log('result from data base')
-        res.status(200).json(dataFromDatabase.rows[0]);
+        res.send(dataFromDatabase.rows[0]);
       }else {
         // if no, get info from API
         const city = req.query.city;
@@ -40,12 +43,11 @@ function locationCallback(req, res){
           .then(data => {
             const locationObject = data.body[0];
             const output = new Location(locationObject, req.query.city);
+            res.send(output);
             console.log('location object from API', output);
             // store new city in database
             const sqlInsert = 'INSERT INTO location_info (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4)';
             const valuesToSave = [output.search_query, output.formatted_query, output.latitude, output.longitude];
-            
-            res.send(output);
             client.query(sqlInsert, valuesToSave)
           })
           .catch(error =>{
@@ -58,15 +60,8 @@ function locationCallback(req, res){
   // const dataFromFile = require('./data/location.json');
 }
 
-function Location(locationObject, city){
-  this.search_query = city;
-  this.formatted_query = locationObject.display_name;
-  this.latitude = locationObject.lat;
-  this.longitude = locationObject.lon;
-}
 
 //Weather
-app.get('/weather', weatherCallback);
 function weatherCallback(req, res){
   // const dataFromFile2 = require('./data/weather.json');
   const city = req.query.search_query;
@@ -83,12 +78,7 @@ function weatherCallback(req, res){
     });
 }
 
-function Weather(object){
-  this.forecast = object.weather.description;
-  this.time = object.valid_date;
-}
-
-app.get('/parks', parksCallback)
+// Parks
 function parksCallback(req, res){
   const url = `https://developer.nps.gov/api/v1/parks?limit=3&start=0&q=${req.query.search_query}&sort=&api_key=${PARKS_API_KEY}`
   superagent.get(url)
@@ -100,6 +90,18 @@ function parksCallback(req, res){
       console.log(error);
       res.status(500).send(`Sorry something went wrong`);
     });
+}
+
+function Location(locationObject, city){
+  this.search_query = city;
+  this.formatted_query = locationObject.display_name;
+  this.latitude = locationObject.lat;
+  this.longitude = locationObject.lon;
+}
+
+function Weather(object){
+  this.forecast = object.weather.description;
+  this.time = object.valid_date;
 }
 
 function Park(object){
