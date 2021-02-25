@@ -142,7 +142,16 @@ Start time: 5.20PM
 Finish time: 8.00PM
 
 Actual time needed to complete: 2hr 40min
+___________________________________________________________________
+**Number and name of feature:** SQL
 
+Estimate of time needed to complete: 2 hours
+
+Start time: 4.00PM
+
+Finish time: 6.10PM
+
+Actual time needed to complete: 2hr 10min
 
 
 
@@ -151,6 +160,7 @@ Actual time needed to complete: 2hr 40min
 
 02-22-2020 6:30pm - Application now has a fully-functional express server, with a GET route for the location and weather resources.
 02-23-2020 6:30pm - Application now has a fully-functional express server, with a GET route for the location, weather and park flexible data.
+02-24-2020 6:30pm - Application now has a fully-functional express server, with a GET route for the location, weather and park flexible data and SQL database.
 
 ## Credits and Collaborations
 Matthew Simms
