@@ -17,6 +17,8 @@ const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const PARKS_API_KEY = process.env.PARKS_API_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
+const YELP_API_KEY = process.env.YELP_API_KEY;
+const MOVIE_API_KEY = process.env.MOVIE_API_KEY
 
 
 const client = new pg.Client(DATABASE_URL)
@@ -25,13 +27,15 @@ client.on('error', error => console.log(error))
 app.get('/location', locationCallback);
 app.get('/weather', weatherCallback);
 app.get('/parks', parksCallback)
+app.get('/yelp', yelpCallBack)
+app.get('/movies', moviesCallBack)
 
 function locationCallback(req, res){
   const sqlString = 'SELECT * FROM location_info WHERE search_query = $1';
   const sqlArray = [req.query.city]
   //check if something in database by city name
   client.query(sqlString, sqlArray)
-  .then(dataFromDatabase =>{
+    .then(dataFromDatabase =>{
       if (dataFromDatabase.rows.length > 0){
         console.log('result from data base')
         res.send(dataFromDatabase.rows[0]);
@@ -92,6 +96,37 @@ function parksCallback(req, res){
     });
 }
 
+function yelpCallBack(req, res){
+  const offset = (req.query.page - 1) * 5;
+  const url = `https://api.yelp.com/v3/businesses/search?term=restaurant&location=${req.query.search_query}&limit=5&offset=${offset}`
+  superagent.get(url)
+    .set('Authorization', `Bearer ${YELP_API_KEY}`)
+    .then(yelpData => {
+      const output = yelpData.body.businesses.map(restaurant => new Restaurant(restaurant))
+      res.send(output)
+    })
+    .catch(error =>{
+      console.log(error);
+      res.status(500).send(`Sorry something went wrong`);
+    });
+
+}
+
+function moviesCallBack(req, res){
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${MOVIE_API_KEY}&query=${req.query.search_query}`
+  superagent.get(url)
+    .then(movieData =>{
+      const output = movieData.body.results.map(movie => new Movie(movie))
+      res.send(output)
+    })
+    .catch(error =>{
+      console.log(error);
+      res.status(500).send(`Sorry something went wrong`);
+    });
+}
+
+
+
 function Location(locationObject, city){
   this.search_query = city;
   this.formatted_query = locationObject.display_name;
@@ -112,6 +147,23 @@ function Park(object){
   this.url = object.url;
 }
 
+function Restaurant(object){
+  this.name = object.name;
+  this.image_url = object.image_url;
+  this.price = object.price;
+  this.rating = object.rating;
+  this.url = object.url;
+}
+
+function Movie(object){
+  this.title = object.original_title;
+  this.overview = object.overview;
+  this.average_votes = object.vote_average;
+  this.total_votes = object.vote_count;
+  this.image_url = `https://image.tmdb.org/t/p/w500/${object.poster_path}`;
+  this.popularity = object.popularity;
+  this.released_on = object.release_date;
+}
 // Initialization //
 
 client.connect().then(() => {
